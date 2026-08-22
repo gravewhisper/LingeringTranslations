@@ -15,6 +15,10 @@ public class LingeringTranslations : ModBehaviour
 
     public void Start()
     {
+        var harmony = new Harmony("MegaPiggy.LingeringTranslations");
+
+        harmony.PatchAll(typeof(Patches));
+
         OnCompleteSceneLoad(OWScene.TitleScreen, OWScene.TitleScreen); // We start on title screen
         LoadManager.OnCompleteSceneLoad += OnCompleteSceneLoad;
     }
@@ -24,6 +28,7 @@ public class LingeringTranslations : ModBehaviour
         if (newScene != OWScene.SolarSystem && newScene != OWScene.EyeOfTheUniverse) return;
         ModHelper.Console.WriteLine($"Loaded into {newScene}!", MessageType.Success);
 
+        LingeringTranslationsData.Load();
     }
 
     public override object GetApi()
@@ -33,5 +38,12 @@ public class LingeringTranslations : ModBehaviour
 
     public class API : ILingeringTranslationsAPI
     {
+        public void RegisterTranslationSource(
+            NomaiText nomaiText,
+            string modUniqueName,
+            string sourceId) =>
+            TranslationUtils.RegisterTranslationSource(
+                nomaiText, modUniqueName, sourceId
+            );
     }
 }
