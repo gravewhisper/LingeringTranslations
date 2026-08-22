@@ -175,6 +175,17 @@ public static class LingeringTranslationsData
         return new List<int>();
     }
 
+    public static bool TryGetTranslatedEntries(string sourceId, out List<int> ids)
+    {
+        if (_activeProfile == null || string.IsNullOrEmpty(sourceId))
+        {
+            ids = null;
+            return false;
+        }
+
+        return _activeProfile.NomaiTranslatedEntries.TryGetValue(sourceId, out ids);
+    }
+
     #endregion
 
     private class LingeringTranslationsSaveFile

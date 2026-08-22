@@ -6,6 +6,8 @@ namespace LingeringTranslations;
 
 public static class TranslationUtils
 {
+    private static readonly Dictionary<string, HashSet<NomaiText>> _texts = new();
+
     public static string GetTranslationKey(NomaiText nomaiText)
     {
         var source = nomaiText.GetComponent<TranslationSource>();
@@ -23,17 +25,14 @@ public static class TranslationUtils
     }
 
     /// <summary>
-    /// Permanently remembers a translation whenever a Nomai text entry is translated.
+    /// Permanently remembers a translation and updates other loaded copies
+    /// of the same Nomai text.
     /// </summary>
     public static void StoreTranslation(NomaiText nomaiText, int id)
     {
-        if (nomaiText == null)
-        {
-            return;
-        }
-
-        // Don't save invalid IDs.
-        if (!nomaiText._dictNomaiTextData.ContainsKey(id))
+        if (nomaiText == null ||
+            nomaiText._dictNomaiTextData == null ||
+            !nomaiText._dictNomaiTextData.ContainsKey(id))
         {
             return;
         }
@@ -46,19 +45,25 @@ public static class TranslationUtils
         );
 
         LingeringTranslationsData.SetTranslated(key, id);
+
+        OnTranslationUpdated(key, id);
     }
 
     /// <summary>
-    /// Restores remembered translation states after the text XML has been loaded.
+    /// Restores all remembered translations for this Nomai text.
     /// </summary>
-    public static void RestoreTranslations(NomaiText nomaiText)
+    public static void RestoreTranslations(this NomaiText nomaiText)
     {
+        if (nomaiText == null)
+        {
+            return;
+        }
+
         string key = GetTranslationKey(nomaiText);
 
-        var translatedEntries =
-            LingeringTranslationsData.GetTranslatedEntries(key);
-
-        if (translatedEntries.Count == 0)
+        if (!LingeringTranslationsData.TryGetTranslatedEntries(
+                key,
+                out List<int> translatedEntries))
         {
             return;
         }
@@ -70,29 +75,51 @@ public static class TranslationUtils
 
         foreach (int id in translatedEntries)
         {
-            if (!nomaiText._dictNomaiTextData.TryGetValue(id, out var data))
-            {
-                LingeringTranslations.Instance.ModHelper.Console.WriteLine(
-                    $"Could not restore {key} [{id}]: entry doesn't exist",
-                    MessageType.Warning
-                );
+            RestoreTranslation(nomaiText, id, key);
+        }
+    }
 
-                continue;
+    private static void RestoreTranslation(
+        NomaiText nomaiText,
+        int id)
+    {
+        RestoreTranslation(nomaiText, id, GetTranslationKey(nomaiText));
+    }
+
+    private static void RestoreTranslation(
+        NomaiText nomaiText,
+        int id,
+        string key)
+    {
+        if (nomaiText == null ||
+            nomaiText._dictNomaiTextData == null ||
+            !nomaiText._dictNomaiTextData.TryGetValue(id, out var data))
+        {
+            LingeringTranslations.Instance.ModHelper.Console.WriteLine(
+                $"Could not restore {key} [{id}]: entry doesn't exist",
+                MessageType.Warning
+            );
+
+            return;
+        }
+
+        data.IsTranslated = true;
+        nomaiText._dictNomaiTextData[id] = data;
+
+        LingeringTranslations.Instance.ModHelper.Events.Unity.FireInNUpdates(() =>
+        {
+            if (nomaiText == null)
+            {
+                return;
             }
 
-            data.IsTranslated = true;
-            nomaiText._dictNomaiTextData[id] = data;
+            nomaiText.SetAsTranslated(id);
+        }, 2);
 
-            LingeringTranslations.Instance.ModHelper.Events.Unity.FireOnNextUpdate(() =>
-            {
-                nomaiText.SetAsTranslated(id);
-            });
-
-            LingeringTranslations.Instance.ModHelper.Console.WriteLine(
-                $"Restored translation: {key} [{id}]",
-                MessageType.Info
-            );
-        }
+        LingeringTranslations.Instance.ModHelper.Console.WriteLine(
+            $"Restored translation: {key} [{id}]",
+            MessageType.Info
+        );
     }
 
     public static void RegisterTranslationSource(
@@ -124,6 +151,73 @@ public static class TranslationUtils
             MessageType.Info
         );
 
+        // Important: the key may have just changed from vanilla:* to the
+        // explicitly registered mod/source key.
+        RegisterSync(nomaiText);
+
         RestoreTranslations(nomaiText);
+    }
+
+    public static void RegisterSync(NomaiText nomaiText)
+    {
+        if (nomaiText == null)
+        {
+            return;
+        }
+
+        UnregisterSync(nomaiText);
+
+        string key = GetTranslationKey(nomaiText);
+
+        if (!_texts.TryGetValue(key, out var texts))
+        {
+            texts = new HashSet<NomaiText>();
+            _texts[key] = texts;
+        }
+
+        texts.Add(nomaiText);
+    }
+
+    public static void UnregisterSync(NomaiText nomaiText)
+    {
+        if (nomaiText == null)
+        {
+            return;
+        }
+
+        foreach (var pair in _texts.ToArray())
+        {
+            pair.Value.Remove(nomaiText);
+
+            if (pair.Value.Count == 0)
+            {
+                _texts.Remove(pair.Key);
+            }
+        }
+    }
+
+    private static void OnTranslationUpdated(string sourceId, int id)
+    {
+        if (!_texts.TryGetValue(sourceId, out var texts))
+        {
+            return;
+        }
+
+        foreach (var nomaiText in texts.ToArray())
+        {
+            if (nomaiText == null)
+            {
+                texts.Remove(nomaiText);
+                continue;
+            }
+
+            // We already know this group uses sourceId, so don't recalculate it.
+            RestoreTranslation(nomaiText, id, sourceId);
+        }
+
+        if (texts.Count == 0)
+        {
+            _texts.Remove(sourceId);
+        }
     }
 }
