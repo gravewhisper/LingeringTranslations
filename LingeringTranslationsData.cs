@@ -154,7 +154,7 @@ public static class LingeringTranslationsData
         }
 
         ids.Add(id);
-        Save();
+        PlayerData.SaveCurrentGame();
     }
 
     public static List<int> GetTranslatedEntries(string sourceId)
