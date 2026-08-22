@@ -11,8 +11,8 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="OWML" Version="2.15.1" />
-    <PackageReference Include="OuterWildsGameLibs" Version="1.1.15.1018" />
+    <PackageReference Include="OuterWildsGameLibs" Version="1.1.16.1372" />
+    <PackageReference Include="OWML" Version="2.16.2" />
     <Reference Include="NewHorizons">
       <HintPath>libs\NewHorizons.dll</HintPath>
       <Private>False</Private>

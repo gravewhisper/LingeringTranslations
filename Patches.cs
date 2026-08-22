@@ -94,4 +94,15 @@ public static class Patches
             );
         }
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(
+        typeof(PlayerAudioController),
+        nameof(PlayerAudioController.PlayNomaiTextReveal),
+        [typeof(NomaiWallText)]
+    )]
+    public static bool PlayNomaiTextRevealPrefix()
+    {
+        return !TranslationUtils.IsSilentlyRestoring;
+    }
 }

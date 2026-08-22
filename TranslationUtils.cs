@@ -108,18 +108,36 @@ public static class TranslationUtils
 
         LingeringTranslations.Instance.ModHelper.Events.Unity.FireInNUpdates(() =>
         {
-            if (nomaiText == null)
-            {
-                return;
-            }
-
-            nomaiText.SetAsTranslated(id);
+            SetAsTranslatedSilently(nomaiText, id);
         }, 2);
 
         LingeringTranslations.Instance.ModHelper.Console.WriteLine(
             $"Restored translation: {key} [{id}]",
             MessageType.Info
         );
+    }
+
+    private static int _silentRestoreDepth;
+
+    public static bool IsSilentlyRestoring => _silentRestoreDepth > 0;
+
+    public static void SetAsTranslatedSilently(NomaiText nomaiText, int id)
+    {
+        if (nomaiText == null)
+        {
+            return;
+        }
+
+        _silentRestoreDepth++;
+
+        try
+        {
+            nomaiText.SetAsTranslated(id);
+        }
+        finally
+        {
+            _silentRestoreDepth--;
+        }
     }
 
     public static void RegisterTranslationSource(
