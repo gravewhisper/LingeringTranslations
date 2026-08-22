@@ -19,6 +19,17 @@ public class LingeringTranslations : ModBehaviour
 
         harmony.PatchAll(typeof(Patches));
 
+        if (ModHelper.Interaction.ModExists("xen.NewHorizons"))
+        {
+            ModHelper.Console.WriteLine(
+                "New Horizons detected, applying compatibility patches.",
+                MessageType.Info
+            );
+
+            harmony.PatchAll(typeof(NHPatches));
+            harmony.PatchAll(typeof(NHPatches.DetailBuilderPatches));
+        }
+
         OnCompleteSceneLoad(OWScene.TitleScreen, OWScene.TitleScreen); // We start on title screen
         LoadManager.OnCompleteSceneLoad += OnCompleteSceneLoad;
     }
