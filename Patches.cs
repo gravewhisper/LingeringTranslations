@@ -60,6 +60,7 @@ public static class Patches
     [HarmonyPatch(typeof(NomaiText), nameof(NomaiText.LoadTextXml))]
     public static void LoadTextXmlPostfix(NomaiText __instance)
     {
+        TranslationDiscoveryPatch.Forget(__instance);
         TranslationUtils.RestoreTranslations(__instance);
         TranslationUtils.RegisterSync(__instance);
     }

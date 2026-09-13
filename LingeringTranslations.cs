@@ -18,6 +18,7 @@ public class LingeringTranslations : ModBehaviour
         var harmony = new Harmony("MegaPiggy.LingeringTranslations");
 
         harmony.PatchAll(typeof(Patches));
+        harmony.PatchAll(typeof(TranslationDiscoveryPatch));
 
         if (ModHelper.Interaction.ModExists("xen.NewHorizons"))
         {

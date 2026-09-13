@@ -11,6 +11,9 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="tests/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="OuterWildsGameLibs" Version="1.1.16.1372" />
     <PackageReference Include="OWML" Version="2.16.2" />
     <Reference Include="NewHorizons">

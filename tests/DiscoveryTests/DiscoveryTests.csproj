@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="HarmonyX" Version="2.5.5" />
+    <Compile Include="../../TranslationDiscoveryPatch.cs" Link="TranslationDiscoveryPatch.cs" />
+  </ItemGroup>
+</Project>

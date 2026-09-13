@@ -1,10 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/ow-mods/owml/master/schemas/manifest_schema.json",
   "filename": "LingeringTranslations.dll",
-  "author": "MegaPiggy",
-  "name": "Lingering Translations",
+  "author": "MegaPiggy; gravewhisper (discovery fix)",
+  "name": "Lingering Translations (Discovery Fix)",
   "uniqueName": "MegaPiggy.LingeringTranslations",
-  "version": "1.0.0",
+  "version": "1.0.1-gravewhisper.1",
   "owmlVersion": "2.16.2",
   "dependencies": []
 }
