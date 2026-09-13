@@ -42,6 +42,11 @@ public static class Patches
         // It was already translated before this call.
         if (__state)
         {
+            if (!TranslationUtils.IsSilentlyRestoring)
+            {
+                __instance.CheckSetDatabaseCondition();
+            }
+
             return;
         }
 
@@ -60,7 +65,6 @@ public static class Patches
     [HarmonyPatch(typeof(NomaiText), nameof(NomaiText.LoadTextXml))]
     public static void LoadTextXmlPostfix(NomaiText __instance)
     {
-        TranslationDiscoveryPatch.Forget(__instance);
         TranslationUtils.RestoreTranslations(__instance);
         TranslationUtils.RegisterSync(__instance);
     }

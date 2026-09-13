@@ -103,12 +103,6 @@ public static class TranslationUtils
             return;
         }
 
-        if (!data.IsTranslated)
-        {
-            // A newly remembered block can satisfy conditions that a previous read could not.
-            TranslationDiscoveryPatch.Forget(nomaiText);
-        }
-
         data.IsTranslated = true;
         nomaiText._dictNomaiTextData[id] = data;
 

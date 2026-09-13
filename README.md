@@ -5,9 +5,12 @@
 Experimental fix for [upstream issue #1](https://github.com/MegaPiggy/LingeringTranslations/issues/1):
 restored projection-stone text can bypass location-specific ship-log discoveries.
 
-This fork rechecks vanilla discovery conditions only when the translator finishes
-displaying a read text node. Loading a scene or synchronizing another copy does not
-award discoveries. It retains the original mod ID and save format, so it replaces
+The gameplay fix is five added lines in the existing `SetAsTranslatedPostfix`:
+recheck discovery conditions for already-translated text, except during the mod's
+silent restoration. There is no new transpiler, cache, or save-format change.
+Other mods' programmatic translation calls are not separately filtered.
+
+It retains the original mod ID and save format, so it replaces
 rather than runs alongside the original mod. Back up the mod directory and game
 save before testing. Reinstalling/updating from the official mod database may
 replace this fork.
