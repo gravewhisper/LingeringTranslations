@@ -42,6 +42,11 @@ public static class Patches
         // It was already translated before this call.
         if (__state)
         {
+            if (!TranslationUtils.IsSilentlyRestoring)
+            {
+                __instance.CheckSetDatabaseCondition();
+            }
+
             return;
         }
 
